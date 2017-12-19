@@ -59,6 +59,10 @@ router.get('/', hc.reset);
 // La saco de la historia porque hace una redireccion a otro sitio.
 router.get('/users/:userId(\\d+)/visits', hc.pop);
 
+// Saco de la historia los adjuntos fallidos.
+router.get('/uploads/*', hc.pop);
+
+
 //-----------------------------------------------------------
 
 

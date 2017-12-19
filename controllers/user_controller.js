@@ -5,6 +5,8 @@ var authentication = require('../helpers/authentication');
 var cloudinary = require('cloudinary');
 var fs = require('fs');
 
+var attachmentHelper = require("../helpers/attachment.js");
+
 var moment = require('moment');
 
 //-----------------------------------------------------------
@@ -192,9 +194,8 @@ exports.create = function (req, res, next) {
                     return user;
                 }
 
-                // Salvar la imagen en Cloudinary
-                var attachmentHelper = require("../helpers/attachment.js");
-                return attachmentHelper.uploadResourceToCloudinary(req.file.path, cloudinary_image_options)
+                // Salvar la imagen en Cloudinary o en el sistema de ficheros local
+                return attachmentHelper.uploadResource(req.file.path, cloudinary_image_options)
                 .catch(function (error) {
                     req.flash('error', 'No se ha podido salvar la fotografía: ' + error.message);
                     throw error;
@@ -290,15 +291,14 @@ exports.update = function (req, res, next) {
         if (!req.file) {
             req.flash('info', 'Tenemos un usuario sin fotografía.');
             if (user.Photo) {
-                cloudinary.api.delete_resources(user.Photo.public_id);
+                attachmentHelper.deleteResource(user.Photo.public_id);
                 user.Photo.destroy();
             }
             return user;
         }
 
-        // Salvar la foto nueva en Cloudinary
-        var attachmentHelper = require("../helpers/attachment.js");
-        return attachmentHelper.uploadResourceToCloudinary(req.file.path, cloudinary_image_options)
+        // Salvar la foto nueva en Cloudinary o en el sistema de ficheros
+        return attachmentHelper.uploadResource(req.file.path, cloudinary_image_options)
         .catch(function (error) {
             req.flash('error', 'No se ha podido salvar la fotografía: ' + error.message);
             throw error;
@@ -399,7 +399,7 @@ function createAttachment(req, uploadResult, user) {
     })
     .catch(function (error) { // Ignoro errores de validacion en imagenes
         req.flash('error', 'No se ha podido salvar la fotografía: ' + error.message);
-        cloudinary.api.delete_resources(uploadResult.public_id);
+        attachmentHelper.deleteResource(uploadResult.public_id);
     });
 }
 
@@ -432,12 +432,12 @@ function updateAttachment(req, uploadResult, user) {
     .then(function (attachment) {
         req.flash('success', 'Imagen nueva guardada con éxito.');
         if (old_public_id) {
-            cloudinary.api.delete_resources(old_public_id);
+            attachmentHelper.deleteResource(old_public_id);
         }
     })
     .catch(function (error) { // Ignoro errores de validacion en imagenes
         req.flash('error', 'No se ha podido salvar la nueva imagen: ' + error.message);
-        cloudinary.api.delete_resources(uploadResult.public_id);
+        attachmentHelper.deleteResource(uploadResult.public_id);
     });
 }
 

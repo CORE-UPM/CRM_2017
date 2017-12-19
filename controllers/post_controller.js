@@ -3,8 +3,9 @@ var Sequelize = require('sequelize');
 
 var paginate = require('../helpers/paginate').paginate;
 
-var cloudinary = require('cloudinary');
 var fs = require('fs');
+
+var attachmentHelper = require("../helpers/attachment.js");
 
 
 // Opciones para imagenes subidas a Cloudinary
@@ -162,7 +163,7 @@ exports.show = function (req, res, next) {
 
     res.render('posts/show', {
         post: req.post,
-        cloudinary: cloudinary
+        attachmentHelper: attachmentHelper
     });
 };
 
@@ -282,11 +283,10 @@ exports.createAttachment = function (req, res, next) {
         return;
     }
 
-    // Salvar la imagen en Cloudinary
-    var attachmentHelper = require("../helpers/attachment.js");
-    return attachmentHelper.uploadResourceToCloudinary(req.file.path, cloudinary_upload_options)
+    // Salvar el fichero en Cloudinary o en el sistema de ficheros local
+    return attachmentHelper.uploadResource(req.file.path, cloudinary_upload_options)
     .catch(function (error) {
-        req.flash('error', 'No se ha podido subir el adjunto a Cloudinary: ' + error.message);
+        req.flash('error', 'No se ha podido salvar permanentemente el adjunto: ' + error.message);
         throw error;
     })
     .then(function (uploadResult) {
@@ -309,7 +309,7 @@ exports.createAttachment = function (req, res, next) {
         })
         .catch(function (error) {
             req.flash('error', 'No se ha podido salvar el adjunto: ' + result.error.message);
-            cloudinary.api.delete_resources(uploadResult.public_id);
+            attachmentHelper.deleteResource(uploadResult.public_id);
             next(error);
         });
     })
@@ -334,8 +334,8 @@ exports.destroyAttachment = function (req, res, next) {
             return req.post.removeAttachment(attachment)
             .then(function () {
 
-                // Borrar el fichero en Cloudinary.
-                cloudinary.api.delete_resources(attachment.public_id);
+                // Borrar el fichero de Cloudinary o del sistema de ficheros local
+                attachmentHelper.deleteResource(attachment.public_id);
 
                 // Borrar el attacment de la base de datos.
                 return attachment.destroy({force: true})

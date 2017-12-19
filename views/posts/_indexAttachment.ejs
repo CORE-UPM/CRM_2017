@@ -30,15 +30,15 @@
                         attachment.mime === "image/jpg" ||
                         attachment.mime === "image/gif" ) { %>
 
-                <%- cloudinary.image(attachment.public_id, {width: 200, secure: true}) %>
+                <%- attachmentHelper.image(attachment.public_id, {width: 200, secure: true}) %>
 
                 <% } else if ( attachment.mime === "video/mp4" ) { %>
 
-                <%- cloudinary.video(attachment.public_id, {width: 200, controls: true, secure: true}) %>
+                <%- attachmentHelper.video(attachment.public_id, {width: 200, controls: true, secure: true}) %>
 
                 <% } else if ( attachment.mime === "application/pdf" ) { %>
 
-                <%- cloudinary.image(attachment.public_id, {width: 150, format: "jpg", secure: true}) %>
+                <%- attachmentHelper.image(attachment.public_id, {width: 150, format: "jpg", secure: true}) %>
 
                 <% } else { %>
 

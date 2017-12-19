@@ -16,8 +16,8 @@
     "moff_heroku": "heroku --app dcrmt maintenance:off"
   },
   "engines": {
-    "node": "7.10.1",
-    "npm": "3.10.x"
+    "node": "8.9.x",
+    "npm": "4.6.x"
   },
   "dependencies": {
     "body-parser": "~1.15.2",

@@ -7,7 +7,7 @@ Servidor WEB que implementa un CRM muy simple.
 
 Se ha probado en un mac y con dockers.
 
-Instalar previamente nodejs (7.10) y npm (3.10).
+Instalar previamente nodejs (8.9) y npm (4.6) (o superiores).
 
 Para almacenar las fotos y y los ficheros usados es necesario crearse una cuenta en Cloudinary.
 
